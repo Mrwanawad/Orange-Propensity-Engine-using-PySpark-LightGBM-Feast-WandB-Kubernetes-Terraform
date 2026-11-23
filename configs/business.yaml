@@ -1,0 +1,35 @@
+# EVERY number in this file is an illustrative ASSUMPTION for an Egyptian mobile
+# operator. None comes from Orange. Replace them with finance-approved values.
+currency: EGP
+assumption: true
+
+arpu_monthly: 120          # assumption: blended prepaid/postpaid ARPU
+margin_rate: 0.45          # assumption: contribution margin on ARPU
+
+actions:
+  retain:
+    response_rate: 0.25    # assumption: share of would-be churners saved when contacted
+    extra_tenure_months: 9 # assumption: expected extra tenure after a save
+    cost: 18.0             # assumption: offer (bonus data) + contact cost
+    channel: call_centre
+  crosssell:
+    response_rate: 0.10    # assumption: take-up given contact, among appetent subscribers
+    margin_new: 220.0      # assumption: 12-month margin of the new product
+    cost: 4.0
+    channel: sms
+  upsell:
+    response_rate: 0.15    # assumption
+    delta_arpu: 40.0       # assumption: monthly ARPU gain from the upgrade
+    horizon_months: 12     # assumption: H, margin horizon
+    cost: 6.0
+    channel: app_push
+
+budget: 60000.0            # assumption: weekly campaign budget for the 50k base
+
+channel_capacity:          # assumption: weekly contacts per channel for the 50k base
+  call_centre: 1500
+  sms: 6000
+  app_push: 6000
+
+suppression:
+  recent_contact_days: 30

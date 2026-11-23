@@ -1,0 +1,155 @@
+# Local stack. Core: s3 (SeaweedFS) + iceberg-rest + redis. Profiles: spark, app, obs, airflow.
+#   docker compose up -d                          # core
+#   docker compose --profile spark up -d          # + spark master/worker
+#   docker compose run --rm jobs python -m ...    # run a batch job inside the jobs image
+x-s3-env: &s3-env
+  AWS_ACCESS_KEY_ID: localadmin
+  AWS_SECRET_ACCESS_KEY: localadmin
+  AWS_REGION: us-east-1
+  S3_ENDPOINT: http://s3:8333
+  ICEBERG_REST_URI: http://iceberg-rest:8181
+  REDIS_URL: redis://redis:6379/0
+  # AWS SDK v2 sends chunked checksum trailers by default; most non-AWS S3 servers need this off
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+  AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+
+x-jobs: &jobs
+  build: { context: ., dockerfile: Dockerfile.jobs }
+  image: ope-jobs:local
+  environment:
+    <<: *s3-env
+    WANDB_MODE: offline
+  volumes:
+    - ./data:/app/data
+    - ./artifacts:/app/artifacts
+    - ./reports:/app/reports
+    - ./docs:/app/docs
+    - ./src:/app/src
+    - ./scripts:/app/scripts
+    - ./configs:/app/configs
+    - ./wandb:/app/wandb
+
+services:
+  s3:
+    # S3-compatible object store (MinIO community images left Docker Hub; SeaweedFS fills the role)
+    image: chrislusf/seaweedfs:4.01
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports: ["8333:8333"]
+    volumes:
+      - s3-data:/data
+      - ./deploy/local/s3.json:/etc/seaweedfs/s3.json:ro
+
+  s3-init:
+    image: amazon/aws-cli:2.40.1
+    depends_on: [s3]
+    environment: { AWS_ACCESS_KEY_ID: localadmin, AWS_SECRET_ACCESS_KEY: localadmin, AWS_REGION: us-east-1 }
+    entrypoint: >
+      sh -c "for i in $$(seq 1 30); do aws --endpoint-url http://s3:8333 s3 ls && break; sleep 2; done;
+             for b in warehouse raw artifacts; do aws --endpoint-url http://s3:8333 s3 mb s3://$$b || true; done"
+
+  iceberg-rest:
+    image: apache/iceberg-rest-fixture:1.10.1
+    user: root  # sqlite catalog file lives on a named volume owned by root
+    depends_on: { s3-init: { condition: service_completed_successfully } }
+    environment:
+      AWS_ACCESS_KEY_ID: localadmin
+      AWS_SECRET_ACCESS_KEY: localadmin
+      AWS_REGION: us-east-1
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      CATALOG_WAREHOUSE: s3://warehouse/
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://s3:8333
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+      CATALOG_URI: jdbc:sqlite:/catalog/iceberg.db
+    volumes: [iceberg-catalog:/catalog]
+    ports: ["8181:8181"]
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--maxmemory-policy", "allkeys-lru", "--save", ""]
+    ports: ["6379:6379"]
+
+  spark-master:
+    <<: *jobs
+    profiles: [spark]
+    command: spark-class org.apache.spark.deploy.master.Master --host spark-master
+    ports: ["7077:7077", "8080:8080"]
+
+  spark-worker:
+    <<: *jobs
+    profiles: [spark]
+    command: spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077 --cores 6 --memory 12g
+    depends_on: [spark-master]
+
+  jobs:
+    <<: *jobs
+    profiles: [jobs]
+    command: ["python", "-c", "print('use: docker compose run --rm jobs python -m <module>')"]
+
+  api:
+    build: { context: ., dockerfile: Dockerfile }
+    image: ope-api:local
+    profiles: [app]
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      OPE_API_KEYS: local-dev-key
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+      - ./data:/app/data:ro
+      - ./reports:/app/reports:ro
+    ports: ["8000:8000"]
+    depends_on: [redis]
+
+  console:
+    image: ope-api:local
+    profiles: [app]
+    command: ["gunicorn", "-b", "0.0.0.0:8050", "-w", "2", "ope.console.app:server"]
+    environment:
+      OPE_API_URL: http://api:8000
+      OPE_API_KEY: local-dev-key
+    volumes:
+      - ./reports:/app/reports:ro
+    ports: ["8050:8050"]
+    depends_on: [api]
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: [obs]
+    volumes: ["./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+    ports: ["9090:9090"]
+
+  grafana:
+    image: grafana/grafana:12.1.0
+    profiles: [obs]
+    environment: { GF_AUTH_ANONYMOUS_ENABLED: "true", GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer }
+    volumes:
+      - ./deploy/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["3000:3000"]
+
+  airflow:
+    build: { context: ., dockerfile: Dockerfile.airflow }
+    image: ope-airflow:local
+    profiles: [airflow]
+    command: standalone
+    environment:
+      <<: *s3-env
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      OPE_EXECUTION: local
+      REDIS_CONNECTION: redis:6379
+      WANDB_MODE: offline
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./reports:/app/reports
+      - ./src:/app/src
+      - ./configs:/app/configs
+    ports: ["8081:8080"]
+    depends_on: [redis, iceberg-rest]
+
+volumes:
+  s3-data:
+  iceberg-catalog:

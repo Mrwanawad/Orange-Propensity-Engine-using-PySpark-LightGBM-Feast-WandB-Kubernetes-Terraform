@@ -1,0 +1,80 @@
+seed: 42
+targets: [churn, appetency, upselling]
+
+paths:
+  raw: data/raw
+  interim: data/interim
+  processed: data/processed
+  models: artifacts/models
+  reports: reports
+
+openml_ids:
+  churn: 1112
+  appetency: 1111
+  upselling: 1114
+
+split:
+  train: 0.70
+  calibration: 0.10
+  test: 0.20
+  n_folds: 5
+
+# The test split is opened once, after the champions are frozen (section 6.1).
+final_evaluation: false
+
+prep:
+  max_missing_drop: 0.99
+  indicator_min_missing: 0.05
+  rare_level_min_count: 20
+
+tuning:
+  n_trials:
+    lightgbm: 100
+    xgboost: 40
+    catboost: 30
+  # wall-clock cap per (target, family) study on an 8-core laptop, one study at a time
+  timeout_sec:
+    lightgbm: 1800
+    xgboost: 1200
+    catboost: 1200
+
+gate:
+  min_gain_over_baseline: 0.01
+  max_ece: 0.02
+  max_fold_drop: 0.03
+
+h2o:
+  max_runtime_secs: 900
+
+wandb:
+  project: orange-propensity-engine
+  mode: offline
+
+# Optuna search spaces: [low, high, "log"|"int"|"float"]
+search_space:
+  lightgbm:
+    learning_rate: [0.01, 0.1, log]
+    num_leaves: [8, 128, int]
+    min_child_samples: [20, 400, int]
+    colsample_bytree: [0.2, 0.9, float]
+    subsample: [0.5, 1.0, float]
+    subsample_freq: [1, 1, int]
+    reg_lambda: [0.001, 50.0, log]
+    reg_alpha: [0.001, 10.0, log]
+    cat_smooth: [1.0, 100.0, log]
+    min_data_per_group: [20, 500, int]
+    cat_l2: [1.0, 50.0, log]
+  xgboost:
+    learning_rate: [0.01, 0.1, log]
+    max_depth: [3, 9, int]
+    min_child_weight: [1.0, 100.0, log]
+    colsample_bytree: [0.2, 0.9, float]
+    subsample: [0.5, 1.0, float]
+    reg_lambda: [0.01, 50.0, log]
+    gamma: [0.0001, 5.0, log]
+  catboost:
+    learning_rate: [0.02, 0.15, log]
+    depth: [4, 8, int]
+    l2_leaf_reg: [1.0, 30.0, log]
+    rsm: [0.2, 0.9, float]
+    random_strength: [0.1, 10.0, log]

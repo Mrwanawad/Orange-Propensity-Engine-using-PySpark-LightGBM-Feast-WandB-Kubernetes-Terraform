@@ -1,0 +1,35 @@
+{
+  "churn": {
+    "openml_id": 1112,
+    "name": "KDDCup09_churn",
+    "file": "KDDCup09_churn.arff",
+    "url": "https://openml.org/data/v1/download/53995/KDDCup09_churn.arff",
+    "licence": "Public",
+    "version": "1",
+    "md5_openml": "3cf8299181a0742893a10660e53f9d0a",
+    "sha256": "797ab790cd99a1bbc8b163097d01d85d18ed3b62882559dd0b1ad16a25041c83",
+    "target_attribute": "CHURN"
+  },
+  "appetency": {
+    "openml_id": 1111,
+    "name": "KDDCup09_appetency",
+    "file": "KDDCup09_appetency.arff",
+    "url": "https://openml.org/data/v1/download/53994/KDDCup09_appetency.arff",
+    "licence": "Public",
+    "version": "1",
+    "md5_openml": "50ca6df0132c6262fa5763edd7b3884c",
+    "sha256": "201abbcfec1177badbc60bd67433186edde5d01374977183a2f49ffa9d863eca",
+    "target_attribute": "APPETENCY"
+  },
+  "upselling": {
+    "openml_id": 1114,
+    "name": "KDDCup09_upselling",
+    "file": "KDDCup09_upselling.arff",
+    "url": "https://openml.org/data/v1/download/53997/KDDCup09_upselling.arff",
+    "licence": "Public",
+    "version": "1",
+    "md5_openml": "7c517e830d9ff93e5e0437e3c58d9939",
+    "sha256": "978359bbb764c85094694da9ae678ef6abd359dac75172a73050faa2d63a03e3",
+    "target_attribute": "UPSELLING"
+  }
+}

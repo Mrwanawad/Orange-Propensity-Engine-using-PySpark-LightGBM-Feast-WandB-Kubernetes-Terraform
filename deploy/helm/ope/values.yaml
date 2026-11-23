@@ -1,0 +1,53 @@
+image:
+  api: ope-api:local
+  jobs: ope-jobs:local
+  pullPolicy: IfNotPresent
+
+redis:
+  deploy: false          # true: tiny in-cluster Redis (kind / dev). AWS uses ElastiCache.
+  url: redis://redis:6379/0
+
+artifacts:
+  # where the API finds model bundles and batch outputs
+  hostPath: ""           # kind: node path mounted from the repo (see deploy/kind)
+  s3Uri: ""              # AWS: synced by an init container, e.g. s3://ope-artifacts/
+  pvcSize: 2Gi
+
+api:
+  replicas: 2
+  resources:
+    requests: { cpu: 500m, memory: 1Gi }
+    limits: { memory: 2Gi }
+  hpa: { enabled: false, min: 2, max: 20, cpu: 70 }
+  apiKeysSecret: ope-api-keys   # key OPE_API_KEYS
+  jwt: { issuer: "", audience: "", jwksUrl: "" }
+  rateLimitPerMinute: 1200
+  otlpEndpoint: ""
+
+console:
+  enabled: true
+  replicas: 1
+
+analyst:
+  enabled: true             # FastMCP tool server; the agent runs where the LLM key lives
+  replicas: 1
+
+scoring:
+  mode: cronjob             # cronjob (pandas, small bases) | spark (SparkApplication via the Spark operator)
+  schedule: "0 3 * * 1"
+  spark:
+    executors: 20
+    executorCores: 4
+    executorMemory: 8g
+    table: lake.silver.subscribers
+
+serviceAccount:
+  jobs:
+    name: ope-jobs
+    annotations: {}         # AWS: eks.amazonaws.com/role-arn for IRSA
+
+env:
+  ICEBERG_REST_URI: http://iceberg-rest:8181
+  S3_ENDPOINT: ""
+  AWS_REGION: us-east-1
+  WANDB_MODE: offline

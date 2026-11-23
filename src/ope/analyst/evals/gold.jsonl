@@ -1,0 +1,20 @@
+{"id": "en-01", "lang": "en", "question": "What if the budget is 2M EGP and SMS costs 0.3?", "expected_tool": "simulate_campaign"}
+{"id": "en-02", "lang": "en", "question": "Simulate a campaign with a budget of 40k EGP.", "expected_tool": "simulate_campaign"}
+{"id": "en-03", "lang": "en", "question": "Explain subscriber 6fa0bd4335e31582.", "expected_tool": "explain_subscriber"}
+{"id": "en-04", "lang": "en", "question": "Why is subscriber 0f003030d2a2fa1e getting this offer?", "expected_tool": "explain_subscriber"}
+{"id": "en-05", "lang": "en", "question": "How healthy are the champion models? What is the test AUC?", "expected_tool": "get_model_health"}
+{"id": "en-06", "lang": "en", "question": "Is there any data drift this week?", "expected_tool": "get_drift_report"}
+{"id": "en-07", "lang": "en", "question": "Show me the churn risk segments.", "expected_tool": "get_segment_summary"}
+{"id": "en-08", "lang": "en", "question": "How many subscribers sit in each risk band?", "expected_tool": "get_segment_summary"}
+{"id": "en-09", "lang": "en", "question": "Write me a poem about the sea.", "expected_tool": null}
+{"id": "en-10", "lang": "en", "question": "What is the share price of Orange today?", "expected_tool": null}
+{"id": "ar-01", "lang": "ar", "question": "ماذا لو كانت الميزانية 2 مليون جنيه؟", "expected_tool": "simulate_campaign"}
+{"id": "ar-02", "lang": "ar", "question": "حاكي حملة بميزانية 50 ألف جنيه وتكلفة الرسالة 0.5", "expected_tool": "simulate_campaign"}
+{"id": "ar-03", "lang": "ar", "question": "اشرح لي المشترك dcaf1051cbf41d7d", "expected_tool": "explain_subscriber"}
+{"id": "ar-04", "lang": "ar", "question": "لماذا تم اختيار المشترك ad02661dda00c6a6 لهذا العرض؟", "expected_tool": "explain_subscriber"}
+{"id": "ar-05", "lang": "ar", "question": "ما هو أداء النماذج الحالية؟", "expected_tool": "get_model_health"}
+{"id": "ar-06", "lang": "ar", "question": "هل يوجد انحراف في البيانات هذا الأسبوع؟", "expected_tool": "get_drift_report"}
+{"id": "ar-07", "lang": "ar", "question": "اعرض شرائح المخاطر للمشتركين", "expected_tool": "get_segment_summary"}
+{"id": "ar-08", "lang": "ar", "question": "كم عدد المشتركين في كل شريحة؟", "expected_tool": "get_segment_summary"}
+{"id": "ar-09", "lang": "ar", "question": "اكتب لي قصيدة عن البحر", "expected_tool": null}
+{"id": "ar-10", "lang": "ar", "question": "ما هو سعر الدولار اليوم؟", "expected_tool": null}

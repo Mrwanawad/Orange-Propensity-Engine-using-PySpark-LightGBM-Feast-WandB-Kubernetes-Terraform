@@ -1,0 +1,10 @@
+# Local Airflow (standalone) with the ope package, so DAG tasks run `python -m ope...` in-process.
+FROM apache/airflow:3.3.0-python3.12
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+USER airflow
+COPY --chown=airflow pyproject.toml uv.lock README.md /app/
+COPY --chown=airflow src /app/src
+COPY --chown=airflow configs /app/configs
+COPY --chown=airflow scripts /app/scripts
+RUN pip install --no-cache-dir "/app[monitoring,feast]" apache-airflow-providers-cncf-kubernetes==11.0.0

@@ -1,0 +1,18 @@
+{
+  "citation": "Guyon, I., Lemaire, V., Boulle, M., Dror, G., Vogel, D. (2009). Analysis of the KDD Cup 2009: Fast Scoring on a Large Orange Customer Database. JMLR Workshop and Conference Proceedings 7:1-22.",
+  "url": "https://proceedings.mlr.press/v7/guyon09/guyon09.pdf",
+  "source": "Table 2 (page 12) for best results; Section 5 (pages 5-7) for the Naive Bayes and in-house baselines, stated there as LARGE-dataset results",
+  "verified_on": "2026-11-12",
+  "test_auc": {
+    "churn": {"best_overall": 0.7651, "basic_naive_bayes": 0.6468, "orange_in_house_snb": 0.7435},
+    "appetency": {"best_overall": 0.8853, "basic_naive_bayes": 0.6453, "orange_in_house_snb": 0.8522},
+    "upselling": {"best_overall": 0.9092, "basic_naive_bayes": 0.7211, "orange_in_house_snb": 0.8975},
+    "average": {"best_overall": 0.8521, "basic_naive_bayes": 0.6711, "orange_in_house_snb": 0.8311}
+  },
+  "winner": "IBM Research (slow track score 0.8521, fast track 0.8493; Table 1, page 10)",
+  "caveats": [
+    "Official results are on the challenge's own test set, whose labels were never released.",
+    "Section 7.1 (page 10): all the winning teams scored best on the LARGE dataset (15,000 variables). This project uses the SMALL dataset (230 variables).",
+    "Our test AUCs come from our own stratified 20% hold-out of the 50,000 labelled rows, so the comparison is approximate only."
+  ]
+}

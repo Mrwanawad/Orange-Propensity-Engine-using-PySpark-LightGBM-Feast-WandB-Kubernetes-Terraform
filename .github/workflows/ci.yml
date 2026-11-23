@@ -1,0 +1,95 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.10.9"
+      - run: uv python install 3.12
+      - run: uv sync --frozen --extra dev --extra agent --extra monitoring
+      - name: lint
+        run: |
+          uv run ruff check src tests scripts dags load deploy/kind
+          uv run ruff format --check src tests scripts load deploy/kind
+      - name: types
+        run: uv run pyright
+      - name: tests (unit, contracts, leakage, policy, API)
+        run: uv run pytest -m "not slow and not integration" --cov=ope --cov-report=term-missing:skip-covered
+      - name: training smoke test (fixture data, tiny models)
+        run: uv run python deploy/kind/smoke_artifacts.py /tmp/ope-smoke
+
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: build API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          tags: ope-api:ci
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.19.0
+      - run: helm lint deploy/helm/ope -f deploy/helm/ope/values-local.yaml
+      - run: helm lint deploy/helm/ope -f deploy/helm/ope/values-aws.yaml
+      - run: helm template ope deploy/helm/ope -f deploy/helm/ope/values-aws.yaml > /dev/null
+
+  kind-smoke:
+    runs-on: ubuntu-latest
+    needs: [helm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.10.9"
+      - run: uv python install 3.12 && uv sync --frozen --extra dev
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.19.0
+      - name: smoke artifacts (before the cluster, so the node mount sees them)
+        run: mkdir -p /tmp/ope-kind && uv run python deploy/kind/smoke_artifacts.py /tmp/ope-kind && chmod -R a+rX /tmp/ope-kind
+      - uses: helm/kind-action@v1
+        with:
+          cluster_name: ope
+          config: deploy/kind/kind-config.yaml
+      - run: bash deploy/kind/smoke.sh
+
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: deploy/terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.2
+      - uses: terraform-linters/setup-tflint@v4
+      - run: terraform fmt -check -recursive
+      - name: validate (no backend, no cloud credentials)
+        working-directory: deploy/terraform/envs/dev
+        run: terraform init -backend=false && terraform validate
+      - name: tflint
+        run: tflint --init && tflint --recursive

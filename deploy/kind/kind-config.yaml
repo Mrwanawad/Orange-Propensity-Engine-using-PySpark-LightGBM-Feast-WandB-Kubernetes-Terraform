@@ -1,0 +1,9 @@
+# Single-node kind cluster. /ope on the node holds artifacts/, reports/ and data/ for the API
+# (hostPath in values-local.yaml). The smoke script fills it with tiny fixture-trained models.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraMounts:
+      - hostPath: /tmp/ope-kind
+        containerPath: /ope

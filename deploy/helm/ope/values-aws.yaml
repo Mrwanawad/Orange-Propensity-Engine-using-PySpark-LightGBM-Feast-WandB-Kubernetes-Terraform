@@ -1,0 +1,29 @@
+image:
+  api: 123456789012.dkr.ecr.eu-west-1.amazonaws.com/ope-api:0.1.0     # set from terraform output
+  jobs: 123456789012.dkr.ecr.eu-west-1.amazonaws.com/ope-jobs:0.1.0
+redis:
+  deploy: false
+  url: rediss://ope-redis.xxxxxx.cache.amazonaws.com:6379/0          # terraform output redis_endpoint
+artifacts:
+  s3Uri: s3://ope-dev-artifacts/
+api:
+  replicas: 3
+  hpa: { enabled: true, min: 3, max: 30, cpu: 65 }
+  jwt:
+    issuer: https://login.example-operator.com/
+    audience: ope-api
+    jwksUrl: https://login.example-operator.com/.well-known/jwks.json
+  otlpEndpoint: http://otel-collector.observability:4318
+scoring:
+  mode: spark
+  spark:
+    executors: 40
+    executorCores: 4
+    executorMemory: 8g
+serviceAccount:
+  jobs:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/ope-dev-jobs
+env:
+  ICEBERG_REST_URI: http://iceberg-rest.ope:8181
+  AWS_REGION: eu-west-1

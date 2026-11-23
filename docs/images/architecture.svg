@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" width="1200" height="760" font-family="'Times New Roman', Times, serif">
+  <style>
+    .bg { fill: #fbfaf7; }
+    .box { fill: #ffffff; stroke: #4a4f57; stroke-width: 1.2; }
+    .lane { fill: none; stroke: #d9d6cf; stroke-width: 1.2; stroke-dasharray: 6 5; }
+    .accent { fill: #eef3f1; stroke: #2f5d50; stroke-width: 1.4; }
+    .t { font-weight: 700; font-size: 15px; fill: #1f2328; }
+    .s { font-weight: 700; font-size: 12.5px; fill: #4a4f57; }
+    .h { font-family: 'GFS Didot', Didot, Georgia, serif; font-size: 22px; fill: #1f2328; }
+    .lh { font-family: 'GFS Didot', Didot, Georgia, serif; font-size: 16px; fill: #2f5d50; }
+    .a { stroke: #4a4f57; stroke-width: 1.4; fill: none; marker-end: url(#arr); }
+  </style>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a4f57"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text class="h" x="40" y="44">Orange Propensity Engine: weekly batch, online serving, monitoring</text>
+
+  <!-- lanes -->
+  <rect class="lane" x="24" y="70" width="1152" height="170" rx="8"/>
+  <text class="lh" x="40" y="94">Data (Airflow ope_weekly, Spark on Kubernetes, Iceberg on S3)</text>
+  <rect class="lane" x="24" y="256" width="1152" height="200" rx="8"/>
+  <text class="lh" x="40" y="280">Modelling (ope_retrain; W&amp;B runs, Optuna studies, registry aliases)</text>
+  <rect class="lane" x="24" y="472" width="1152" height="270" rx="8"/>
+  <text class="lh" x="40" y="496">Decisions and serving</text>
+
+  <!-- data lane -->
+  <rect class="box" x="44" y="110" width="150" height="110" rx="6"/>
+  <text class="t" x="58" y="138">OpenML raw ARFF</text>
+  <text class="s" x="58" y="160">3 files, SHA-256</text>
+  <text class="s" x="58" y="178">MANIFEST.json</text>
+  <text class="s" x="58" y="196">row-identity check</text>
+
+  <rect class="box" x="230" y="110" width="190" height="110" rx="6"/>
+  <text class="t" x="244" y="138">bronze.subscribers_raw</text>
+  <text class="s" x="244" y="160">Iceberg, partitioned by</text>
+  <text class="s" x="244" y="178">snapshot_date,</text>
+  <text class="s" x="244" y="196">bucket(64, subscriber_id)</text>
+
+  <rect class="accent" x="456" y="110" width="170" height="110" rx="6"/>
+  <text class="t" x="470" y="138">Pandera contract</text>
+  <text class="s" x="470" y="160">per Arrow batch</text>
+  <text class="s" x="470" y="178">+ id uniqueness</text>
+  <text class="s" x="470" y="196">fail = run stops</text>
+
+  <rect class="box" x="662" y="110" width="170" height="110" rx="6"/>
+  <text class="t" x="676" y="138">silver.subscribers</text>
+  <text class="s" x="676" y="160">pinned snapshot id</text>
+  <text class="s" x="676" y="178">logged with every</text>
+  <text class="s" x="676" y="196">model freeze</text>
+
+  <rect class="box" x="868" y="110" width="290" height="110" rx="6"/>
+  <text class="t" x="882" y="138">gold.subscriber_features + Feast</text>
+  <text class="s" x="882" y="160">offline: Iceberg / parquet</text>
+  <text class="s" x="882" y="178">online: Redis, 8-day TTL</text>
+  <text class="s" x="882" y="196">domain feature view: placeholder</text>
+
+  <path class="a" d="M194 165 H228"/>
+  <path class="a" d="M420 165 H454"/>
+  <path class="a" d="M626 165 H660"/>
+  <path class="a" d="M832 165 H866"/>
+
+  <!-- modelling lane -->
+  <rect class="box" x="44" y="296" width="200" height="140" rx="6"/>
+  <text class="t" x="58" y="324">Split + test guard</text>
+  <text class="s" x="58" y="346">70 / 10 / 20 stratified</text>
+  <text class="s" x="58" y="364">5 CV folds in train</text>
+  <text class="s" x="58" y="382">test opens once</text>
+  <text class="s" x="58" y="400">(final_evaluation flag)</text>
+
+  <rect class="box" x="280" y="296" width="250" height="140" rx="6"/>
+  <text class="t" x="294" y="324">Fold-safe prep + models</text>
+  <text class="s" x="294" y="346">logistic baseline</text>
+  <text class="s" x="294" y="364">LightGBM, XGBoost, CatBoost</text>
+  <text class="s" x="294" y="382">Optuna TPE + median pruner</text>
+  <text class="s" x="294" y="400">H2O AutoML challenger</text>
+  <text class="s" x="294" y="418">stacking test</text>
+
+  <rect class="box" x="566" y="296" width="220" height="140" rx="6"/>
+  <text class="t" x="580" y="324">Calibrate</text>
+  <text class="s" x="580" y="346">isotonic vs Platt</text>
+  <text class="s" x="580" y="364">chosen by CV Brier</text>
+  <text class="s" x="580" y="382">on the calibration split</text>
+
+  <rect class="accent" x="822" y="296" width="336" height="140" rx="6"/>
+  <text class="t" x="836" y="324">Promotion gate -> W&amp;B registry</text>
+  <text class="s" x="836" y="346">CV AUC at least baseline + 0.01</text>
+  <text class="s" x="836" y="364">not below champion - 1 SE</text>
+  <text class="s" x="836" y="382">calibration ECE at most 0.02</text>
+  <text class="s" x="836" y="400">no fold 0.03 below mean</text>
+  <text class="s" x="836" y="418">challenger -> champion (human step)</text>
+
+  <path class="a" d="M244 366 H278"/>
+  <path class="a" d="M530 366 H564"/>
+  <path class="a" d="M786 366 H820"/>
+  <path class="a" d="M747 220 V236 H144 V294"/>
+
+  <!-- serving lane -->
+  <rect class="box" x="44" y="512" width="270" height="150" rx="6"/>
+  <text class="t" x="58" y="540">Spark batch scoring</text>
+  <text class="s" x="58" y="562">mapInPandas, bundles broadcast</text>
+  <text class="s" x="58" y="580">3 calibrated scores per subscriber</text>
+  <text class="s" x="58" y="598">SHAP reasons for actioned only</text>
+  <text class="s" x="58" y="616">gold.scores, gold.actions</text>
+  <text class="s" x="58" y="634">campaign CSV, Redis hashes</text>
+
+  <rect class="accent" x="350" y="512" width="280" height="150" rx="6"/>
+  <text class="t" x="364" y="540">Next-best-action policy</text>
+  <text class="s" x="364" y="562">EV = p x response x value - cost</text>
+  <text class="s" x="364" y="580">one action per subscriber</text>
+  <text class="s" x="364" y="598">budget, channel capacity, suppression</text>
+  <text class="s" x="364" y="616">greedy O(n log n); CP-SAT gap check</text>
+
+  <rect class="box" x="666" y="512" width="230" height="150" rx="6"/>
+  <text class="t" x="680" y="540">FastAPI</text>
+  <text class="s" x="680" y="562">scores / next-best-action (Redis)</text>
+  <text class="s" x="680" y="580">on-demand /v1/score</text>
+  <text class="s" x="680" y="598">campaign simulate</text>
+  <text class="s" x="680" y="616">JWT or API key, rate limit</text>
+  <text class="s" x="680" y="634">OTel traces, Prometheus</text>
+
+  <rect class="box" x="932" y="512" width="226" height="70" rx="6"/>
+  <text class="t" x="946" y="540">Dash CVM console</text>
+  <text class="s" x="946" y="562">simulator, segments, card</text>
+
+  <rect class="box" x="932" y="596" width="226" height="66" rx="6"/>
+  <text class="t" x="946" y="622">Retention Analyst</text>
+  <text class="s" x="946" y="644">Agent Framework + FastMCP</text>
+
+  <rect class="box" x="44" y="676" width="852" height="52" rx="6"/>
+  <text class="t" x="58" y="707">NannyML: KS / Jensen-Shannon drift, PCA reconstruction, CBPE estimated AUC before labels; PSI. Alert -> ope_retrain</text>
+
+  <path class="a" d="M990 436 V454 H180 V510"/>
+  <path class="a" d="M314 587 H348"/>
+  <path class="a" d="M630 587 H664"/>
+  <path class="a" d="M896 547 H930"/>
+  <path class="a" d="M896 629 H930"/>
+  <path class="a" d="M1013 220 V248 H1188 V702 H898"/>
+</svg>

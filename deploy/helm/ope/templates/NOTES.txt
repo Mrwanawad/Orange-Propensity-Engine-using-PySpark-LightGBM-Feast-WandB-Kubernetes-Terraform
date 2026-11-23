@@ -1,0 +1,3 @@
+OPE installed.
+  kubectl port-forward svc/ope-api 8000:80
+  curl localhost:8000/readyz

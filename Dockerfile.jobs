@@ -1,0 +1,31 @@
+# Batch image: Spark jobs, H2O AutoML and training. Same image for the local
+# spark master/worker and for Spark on Kubernetes in production.
+FROM python:3.12-slim-bookworm
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends openjdk-17-jre-headless procps curl \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    PATH=/opt/venv/bin:$PATH
+
+COPY --from=ghcr.io/astral-sh/uv:0.10.9 /uv /usr/local/bin/uv
+WORKDIR /app
+COPY pyproject.toml uv.lock README.md ./
+RUN uv sync --frozen --no-install-project --extra spark --extra h2o --extra monitoring
+
+# Iceberg jars baked in so jobs never download at run time
+ARG ICEBERG=1.12.0
+RUN SPARK_JARS=$(python -c "import pyspark,os;print(os.path.join(os.path.dirname(pyspark.__file__),'jars'))") \
+ && curl -fsSL -o $SPARK_JARS/iceberg-spark-runtime.jar https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-4.1_2.13/$ICEBERG/iceberg-spark-runtime-4.1_2.13-$ICEBERG.jar \
+ && curl -fsSL -o $SPARK_JARS/iceberg-aws-bundle.jar https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-aws-bundle/$ICEBERG/iceberg-aws-bundle-$ICEBERG.jar
+ENV SPARK_HOME=/opt/venv/lib/python3.12/site-packages/pyspark
+
+COPY src ./src
+COPY configs ./configs
+COPY scripts ./scripts
+RUN uv sync --frozen --extra spark --extra h2o --extra monitoring

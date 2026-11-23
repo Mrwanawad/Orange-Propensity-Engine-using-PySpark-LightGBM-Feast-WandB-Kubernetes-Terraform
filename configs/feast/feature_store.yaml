@@ -1,0 +1,11 @@
+project: ope
+provider: local
+registry: ../../data/feast/registry.db
+online_store:
+  type: redis
+  connection_string: ${REDIS_CONNECTION}
+offline_store:
+  type: file
+entity_key_serialization_version: 3
+# Production (values-aws): offline_store type spark reading the Iceberg gold tables,
+# online_store ElastiCache Redis, registry on S3.

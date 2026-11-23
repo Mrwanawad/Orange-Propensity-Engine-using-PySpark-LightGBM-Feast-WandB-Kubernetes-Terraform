@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "local",
+      "credentials": [{ "accessKey": "localadmin", "secretKey": "localadmin" }],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write"]
+    }
+  ]
+}

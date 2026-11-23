@@ -1,0 +1,7 @@
+2026-11-21 19:02:54,184 __main__ tuned upselling lightgbm auc=0.8631±0.0072 (2 trials)
+2026-11-21 19:08:17,437 __main__ tuned upselling xgboost auc=0.8617±0.0067 (3 trials)
+   Building ope @ file:///C:/Users/KimoStore/Desktop/Systems%20Limited/orange-propensity-engine
+      Built ope @ file:///C:/Users/KimoStore/Desktop/Systems%20Limited/orange-propensity-engine
+Uninstalled 1 package in 11ms
+Installed 1 package in 7ms
+2026-11-21 19:24:45,784 __main__ tuned upselling catboost auc=0.8596�0.0065 (4 trials)

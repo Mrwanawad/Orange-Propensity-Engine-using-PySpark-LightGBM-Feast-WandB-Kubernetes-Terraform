@@ -1,0 +1,16 @@
+# kind smoke test
+redis:
+  deploy: true
+artifacts:
+  hostPath: /ope
+api:
+  replicas: 1
+  resources:
+    requests: { cpu: 100m, memory: 512Mi }
+    limits: { memory: 1536Mi }
+console:
+  enabled: false
+analyst:
+  enabled: false
+scoring:
+  mode: cronjob

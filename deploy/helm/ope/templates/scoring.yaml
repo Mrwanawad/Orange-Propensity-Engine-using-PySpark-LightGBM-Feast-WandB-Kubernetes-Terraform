@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.serviceAccount.jobs.name }}
+  {{- with .Values.serviceAccount.jobs.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- if eq .Values.scoring.mode "cronjob" }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ope-weekly-scoring
+  labels: {{- include "ope.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.scoring.schedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          serviceAccountName: {{ .Values.serviceAccount.jobs.name }}
+          restartPolicy: Never
+          containers:
+            - name: score
+              image: {{ .Values.image.jobs }}
+              command: ["python", "-m", "ope.scoring.batch_local"]
+              envFrom: [{ configMapRef: { name: ope-config } }]
+              volumeMounts:
+                {{- include "ope.artifactMounts" . | nindent 16 }}
+          volumes:
+            {{- include "ope.artifactVolume" . | nindent 12 }}
+{{- else }}
+---
+# Requires the Kubeflow Spark operator (sparkoperator.k8s.io/v1beta2)
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: ope-batch-scoring
+  labels: {{- include "ope.labels" . | nindent 4 }}
+spec:
+  type: Python
+  mode: cluster
+  image: {{ .Values.image.jobs }}
+  mainApplicationFile: local:///app/src/ope/scoring/batch_spark.py
+  arguments: ["--table", {{ .Values.scoring.spark.table | quote }}]
+  sparkVersion: "4.1.4"
+  driver:
+    cores: 2
+    memory: 8g
+    serviceAccount: {{ .Values.serviceAccount.jobs.name }}
+    envFrom: [{ configMapRef: { name: ope-config } }]
+  executor:
+    instances: {{ .Values.scoring.spark.executors }}
+    cores: {{ .Values.scoring.spark.executorCores }}
+    memory: {{ .Values.scoring.spark.executorMemory }}
+    envFrom: [{ configMapRef: { name: ope-config } }]
+{{- end }}

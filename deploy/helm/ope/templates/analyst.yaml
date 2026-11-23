@@ -1,0 +1,34 @@
+{{- if .Values.analyst.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ope-analyst-mcp
+  labels: {{- include "ope.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.analyst.replicas }}
+  selector:
+    matchLabels: { app.kubernetes.io/name: ope-analyst-mcp }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: ope-analyst-mcp }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 10001 }
+      containers:
+        - name: mcp
+          image: {{ .Values.image.api }}
+          command: ["python", "-m", "ope.analyst.mcp_server", "--http"]
+          ports: [{ containerPort: 8765, name: mcp }]
+          env:
+            - { name: OPE_API_URL, value: "http://ope-api" }
+            - name: OPE_API_KEY
+              valueFrom:
+                secretKeyRef: { name: {{ .Values.api.apiKeysSecret }}, key: ANALYST_KEY, optional: true }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ope-analyst-mcp
+spec:
+  selector: { app.kubernetes.io/name: ope-analyst-mcp }
+  ports: [{ port: 8765, targetPort: mcp }]
+{{- end }}

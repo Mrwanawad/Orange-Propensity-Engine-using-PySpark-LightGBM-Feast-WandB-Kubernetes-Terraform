@@ -1,0 +1,4 @@
+2026-11-21 18:45:25,183 __main__ tuned churn xgboost auc=0.7387Â±0.0075 (2 trials)
+2026-11-21 19:02:50,651 __main__ tuned churn catboost auc=0.7305Â±0.0095 (1 trials)
+2026-11-21 19:47:50,006 __main__ tuned churn xgboost auc=0.7404±0.0079 (18 trials)
+2026-11-21 20:21:12,011 __main__ tuned churn catboost auc=0.7305±0.0095 (3 trials)
