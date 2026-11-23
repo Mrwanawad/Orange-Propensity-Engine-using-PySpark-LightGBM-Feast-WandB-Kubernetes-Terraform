@@ -1,6 +1,6 @@
 # Checkpoint
 
-Updated: 2026-11-23 04:00 (in progress)
+Updated: 2026-11-23 07:55 (in progress)
 
 ## Done
 
@@ -16,13 +16,14 @@ Updated: 2026-11-23 04:00 (in progress)
 - Git: local repo, first commit 2026-11-23. No remote yet (name in ARCHITECTURE.md section 15,
   needs owner's yes before creating).
 
-## Running
+## Chain finished 2026-11-23 07:50
 
-- `reports/cv/chain.sh` (detached, started 2026-11-23 03:39): fresh re-tune of appetency and
-  upselling, then `select`, `crosstarget`, `train freeze`. `CHAIN_DONE` in
-  `reports/cv/chain.out` marks the end (ETA about 07:00).
-- Churn studies are kept as they are: lightgbm 89 trials, xgboost 18, catboost 3 (CatBoost hits
-  its 20-minute wall-clock cap at about 400 s per trial).
+- Freeze CV AUC: churn lightgbm 0.7415 (gate pass), appetency lightgbm 0.8357 (gate FAIL:
+  stable_folds), upselling lightgbm 0.8652 (gate pass). Stacking not kept for any target.
+- Bundles in `artifacts/models/`, log `reports/cv/freeze.log`.
+- Open: appetency fails the fold-stability gate (a fold more than 0.03 below the mean; 890
+  positives makes folds noisy). Decide: document and promote with the reason, or revisit.
+- WSL capped at 10 GB (`~/.wslconfig`); remote is on GitHub (public).
 
 ## Next (in order)
 

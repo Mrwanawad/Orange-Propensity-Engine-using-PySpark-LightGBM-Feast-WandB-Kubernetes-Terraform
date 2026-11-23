@@ -5,3 +5,6 @@
 Uninstalled 1 package in 11ms
 Installed 1 package in 7ms
 2026-11-21 19:24:45,784 __main__ tuned upselling catboost auc=0.8596�0.0065 (4 trials)
+2026-11-23 05:21:39,193 __main__ tuned upselling lightgbm auc=0.8647±0.0064 (36 trials)
+2026-11-23 05:44:59,608 __main__ tuned upselling xgboost auc=0.8618±0.0081 (6 trials)
+2026-11-23 06:05:35,978 __main__ tuned upselling catboost auc=0.8599±0.0078 (7 trials)

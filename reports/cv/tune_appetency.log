@@ -1,3 +1,6 @@
 2026-11-21 18:50:44,965 __main__ tuned appetency lightgbm auc=0.8282±0.0187 (3 trials)
 2026-11-21 18:57:13,118 __main__ tuned appetency xgboost auc=0.8308±0.0228 (2 trials)
 2026-11-21 19:02:34,485 __main__ tuned appetency catboost auc=0.8314±0.0182 (2 trials)
+2026-11-23 04:10:16,326 __main__ tuned appetency lightgbm auc=0.8343±0.0211 (77 trials)
+2026-11-23 04:30:56,279 __main__ tuned appetency xgboost auc=0.8329±0.0186 (37 trials)
+2026-11-23 04:51:01,556 __main__ tuned appetency catboost auc=0.8322±0.0192 (23 trials)

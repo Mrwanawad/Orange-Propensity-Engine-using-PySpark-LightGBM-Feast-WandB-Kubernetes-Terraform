@@ -1,0 +1,15 @@
+2026-11-23 07:32:40,244 __main__ churn lightgbm cv auc 0.7415
+2026-11-23 07:34:49,565 __main__ churn xgboost cv auc 0.7404
+2026-11-23 07:43:34,537 __main__ churn catboost cv auc 0.7305
+2026-11-23 07:43:34,682 __main__ churn stack auc 0.7421 (gain 0.0005, kept=False)
+2026-11-23 07:43:50,813 __main__ churn lightgbm gate=True {'beats_baseline': True, 'not_worse_than_champion': True, 'calibrated': True, 'stable_folds': True}
+2026-11-23 07:44:08,777 __main__ appetency lightgbm cv auc 0.8357
+2026-11-23 07:44:56,695 __main__ appetency xgboost cv auc 0.8329
+2026-11-23 07:46:06,727 __main__ appetency catboost cv auc 0.8322
+2026-11-23 07:46:06,934 __main__ appetency stack auc 0.8380 (gain 0.0022, kept=False)
+2026-11-23 07:46:11,633 __main__ appetency lightgbm gate=False {'beats_baseline': True, 'not_worse_than_champion': True, 'calibrated': True, 'stable_folds': False}
+2026-11-23 07:46:51,238 __main__ upselling lightgbm cv auc 0.8652
+2026-11-23 07:48:33,768 __main__ upselling xgboost cv auc 0.8618
+2026-11-23 07:50:01,149 __main__ upselling catboost cv auc 0.8599
+2026-11-23 07:50:01,365 __main__ upselling stack auc 0.8638 (gain -0.0014, kept=False)
+2026-11-23 07:50:09,003 __main__ upselling lightgbm gate=True {'beats_baseline': True, 'not_worse_than_champion': True, 'calibrated': True, 'stable_folds': True}
