@@ -17,3 +17,4 @@ deploy/terraform/**/*.tfstate*
 .hypothesis/
 data/feast/
 reports/locust/*.csv.tmp
+reports/jobs_build.log
